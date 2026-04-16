@@ -1,21 +1,21 @@
-# Amazônia Circular
+## Amazônia Circular
 
-Plataforma digital desenvolvida como projeto acadêmico com foco na comercialização de aparas plásticas no Polo Industrial de Manaus.
+Plataforma digital focada na comercialização de aparas plásticas no Polo Industrial de Manaus, conectando empresas que geram resíduos a empresas que reutilizam matéria-prima.
 
-## Objetivo
-Dar visibilidade às aparas industriais e facilitar a conexão entre empresas que vendem e compram esses materiais.
+## 🚀 Objetivo
+Criar um marketplace eficiente para aumentar a visibilidade e otimizar a negociação de resíduos industriais plásticos.
 
-## Problema
-Atualmente, muitas empresas enfrentam dificuldades na comercialização de aparas, com pouca visibilidade e processos pouco estruturados.
+## 🧠 Problema
+Empresas enfrentam dificuldades na comercialização de aparas devido à baixa visibilidade e falta de conexão entre oferta e demanda.
 
-## Solução
-Uma plataforma simples e intuitiva onde empresas podem:
-- Anunciar suas aparas
-- Buscar materiais disponíveis
-- Conectar oferta e demanda
+## 💡 Solução
+Desenvolvimento de uma plataforma digital que centraliza anúncios e facilita a negociação entre empresas do setor.
 
-## Status
-Protótipo funcional desenvolvido e publicado para validação com o setor industrial.
+## 🛠️ Tecnologias utilizadas
+- TypeScript
+- HTML / CSS
+- Vite
+- Netlify
 
-## Link do projeto
+## 🌐 Acesse o projeto
 https://amazoniacircular.netlify.app

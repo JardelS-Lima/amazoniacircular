@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import products from '@/data/products'
+import listings from '@/data/listings'
 
 export const getStripeEnabled = createServerFn({ method: 'GET' }).handler(
   () => !!process.env.STRIPE_SECRET_KEY
@@ -8,17 +8,17 @@ export const getStripeEnabled = createServerFn({ method: 'GET' }).handler(
 export const createCheckoutSession = createServerFn({
   method: 'POST',
 })
-  .inputValidator((productId: number) => productId)
-  .handler(async ({ data: productId }) => {
+  .inputValidator((listingId: number) => listingId)
+  .handler(async ({ data: listingId }) => {
     if (!process.env.STRIPE_SECRET_KEY) {
       throw new Error('Stripe is not configured')
     }
     const { default: Stripe } = await import('stripe')
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-    const product = products.find((p) => p.id === productId)
-    if (!product) {
-      throw new Error('Product not found')
+    const listing = listings.find((l) => l.id === listingId)
+    if (!listing) {
+      throw new Error('Listing not found')
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -26,13 +26,13 @@ export const createCheckoutSession = createServerFn({
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: 'brl',
             product_data: {
-              name: product.name,
-              description: product.shortDescription,
-              images: [product.image],
+              name: listing.title,
+              description: listing.shortDescription,
+              images: [listing.image],
             },
-            unit_amount: product.price * 100,
+            unit_amount: Math.round(listing.pricePerKg * 100), // Convert to cents
           },
           quantity: 1,
         },

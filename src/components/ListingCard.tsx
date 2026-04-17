@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from '@tanstack/react-router'
 import type { Listing } from '@/data/listings'
 import { conditionLabels } from '@/data/listings'
@@ -7,7 +8,7 @@ interface ListingCardProps {
   onContact: (listing: Listing) => void
 }
 
-export function ListingCard({ listing, onContact }: ListingCardProps) {
+export const ListingCard = memo(function ListingCard({ listing, onContact }: ListingCardProps) {
   return (
     <article className="listing-card">
       <Link
@@ -70,4 +71,4 @@ export function ListingCard({ listing, onContact }: ListingCardProps) {
       </div>
     </article>
   )
-}
+})

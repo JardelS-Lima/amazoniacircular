@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import { createCheckoutSession, getStripeEnabled } from '@/lib/stripe'
 
 export function BuyButton({
-  productId,
+  listingId,
   className = '',
 }: {
-  productId: number
+  listingId: number
   className?: string
 }) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [stripeEnabled, setStripeEnabled] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -17,13 +18,15 @@ export function BuyButton({
 
   const handleClick = async () => {
     setLoading(true)
+    setError(null)
     try {
-      const url = await createCheckoutSession({ data: productId })
+      const url = await createCheckoutSession({ data: listingId })
       if (url) {
         window.location.href = url
       }
-    } catch (error) {
-      console.error('Checkout error:', error)
+    } catch (err) {
+      console.error('Checkout error:', err)
+      setError('Erro ao iniciar checkout. Tente novamente.')
       setLoading(false)
     }
   }
@@ -35,18 +38,21 @@ export function BuyButton({
         className={`px-6 py-2 rounded-lg border ${className}`}
         title="Checkout is not available"
       >
-        Checkout Unavailable
+        Checkout Indisponível
       </button>
     )
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={loading || stripeEnabled === null}
-      className={`px-6 py-2 rounded-lg border disabled:cursor-wait ${className}`}
-    >
-      {loading ? 'Processing...' : 'Buy Now'}
-    </button>
+    <div>
+      <button
+        onClick={handleClick}
+        disabled={loading || stripeEnabled === null}
+        className={`px-6 py-2 rounded-lg border disabled:cursor-wait ${className}`}
+      >
+        {loading ? 'Processando...' : 'Comprar Agora'}
+      </button>
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+    </div>
   )
 }

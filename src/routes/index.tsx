@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import listings, { sellers } from '@/data/listings'
+import { createFileRoute } from '@tanstack/react-router'
+import listings from '@/data/listings'
 import type { Listing, PlasticType, Condition } from '@/data/listings'
 import { SearchFilter } from '@/components/SearchFilter'
 import { ListingCard } from '@/components/ListingCard'

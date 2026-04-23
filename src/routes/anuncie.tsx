@@ -138,7 +138,7 @@ function AnunciePage() {
             <form onSubmit={handleSubmit} className="page-form" name="novo-anuncio" method="POST" data-netlify="true" netlify-honeypot="bot-field">
               <input type="hidden" name="form-name" value="novo-anuncio" />
               <p style={{ display: 'none' }}>
-                <label>Não preencha: <input name="bot-field" /></label>
+                <label>Não preencha: <input id="anuncie-bot-field" name="bot-field" /></label>
               </p>
 
               <div className="form-section-title">Dados da Empresa</div>

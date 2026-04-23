@@ -159,7 +159,7 @@ function CadastroPage() {
               <input type="hidden" name="form-name" value="cadastro" />
               <input type="hidden" name="tipo_usuario" value={userType} />
               <p style={{ display: 'none' }}>
-                <label>Não preencha: <input name="bot-field" /></label>
+                <label>Não preencha: <input id="cadastro-bot-field" name="bot-field" /></label>
               </p>
 
               <div className="form-type-badge">

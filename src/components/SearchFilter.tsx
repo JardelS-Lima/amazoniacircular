@@ -24,6 +24,18 @@ const conditionLabel: Record<Condition, string> = {
   contaminado: 'Contaminado',
 }
 
+const plasticDescriptions: Record<PlasticType, string> = {
+  PET: 'Polietileno tereftalato',
+  PEAD: 'Polietileno de alta densidade',
+  PP: 'Polipropileno',
+  PEBD: 'Polietileno de baixa densidade',
+  PVC: 'Policloreto de Vinila',
+  PS: 'Poliestireno',
+  ABS: 'Acrilonitrila Butadieno Estireno',
+  NYLON: 'Poliamida',
+  ACRILICO: 'Polimetilmetacrilato',
+}
+
 export function SearchFilter({
   search,
   onSearchChange,
@@ -76,6 +88,7 @@ export function SearchFilter({
               key={type}
               onClick={() => onTypeToggle(type)}
               className={`filter-chip ${selectedTypes.includes(type) ? 'active' : ''}`}
+              title={plasticDescriptions[type]}
             >
               {type}
             </button>

@@ -11,7 +11,6 @@ interface ContactModalProps {
   onClose: () => void
   listingTitle: string
   listingId: number
-  sellerName: string
   sellerCompany: string
 }
 
@@ -20,7 +19,6 @@ export function ContactModal({
   onClose,
   listingTitle,
   listingId,
-  sellerName,
   sellerCompany,
 }: ContactModalProps) {
   const [fields, setFields] = useState({
@@ -122,7 +120,7 @@ export function ContactModal({
               <input type="hidden" name="listing_title" value={listingTitle} />
               <input type="hidden" name="seller_company" value={sellerCompany} />
               {/* Honeypot */}
-              <input type="text" name="bot-field" style={{ display: 'none' }} />
+              <input id="bot-field" type="text" name="bot-field" style={{ display: 'none' }} />
 
               <div className="form-row">
                 <div className="form-group">

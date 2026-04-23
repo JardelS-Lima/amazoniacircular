@@ -165,7 +165,6 @@ function ListingDetail() {
         onClose={() => setContactOpen(false)}
         listingTitle={listing.title}
         listingId={listing.id}
-        sellerName={listing.seller.name}
         sellerCompany={listing.seller.company}
       />
     </main>

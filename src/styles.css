@@ -135,14 +135,23 @@ input, textarea { font: inherit; }
 
 /* ─── Hero ───────────────────────────────────────────────────────────── */
 .hero-section {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 3rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 2rem;
   padding: 4rem 2rem 3rem;
   max-width: 1300px;
   margin: 0 auto;
   border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
 }
 
 .hero-eyebrow {
@@ -175,18 +184,21 @@ input, textarea { font: inherit; }
   color: var(--text-sub);
   max-width: 480px;
   line-height: 1.7;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem;
 }
 
 .hero-stats {
   display: flex;
   gap: 2rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
 .hero-actions {
   display: flex;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 0;
+  justify-content: center;
 }
 
 .hero-stat { display: flex; flex-direction: column; gap: 0.1rem; }
@@ -201,9 +213,11 @@ input, textarea { font: inherit; }
 
 .hero-badge-grid {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 220px;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .hero-badge-group { display: flex; flex-direction: column; gap: 0.4rem; }

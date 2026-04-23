@@ -128,7 +128,6 @@ function MarketplaceHome() {
         onClose={() => setContactListing(null)}
         listingTitle={contactListing?.title ?? ''}
         listingId={contactListing?.id ?? 0}
-        sellerName={contactListing?.seller.name ?? ''}
         sellerCompany={contactListing?.seller.company ?? ''}
       />
 

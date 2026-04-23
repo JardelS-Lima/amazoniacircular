@@ -2,17 +2,12 @@ import { Link } from '@tanstack/react-router'
 import listings, { sellers } from '@/data/listings'
 import type { PlasticType } from '@/data/listings'
 
-const PLASTIC_TYPE_GROUPS: Record<string, PlasticType[]> = {
-  Commodities: ['PET', 'PEAD', 'PP', 'PEBD'],
-  'Técnicos': ['ABS', 'NYLON', 'ACRILICO'],
-  'Outros': ['PVC', 'PS'],
-}
 
 interface HeroSectionProps {
   onTypeSelect: (type: PlasticType) => void
 }
 
-export function HeroSection({ onTypeSelect }: HeroSectionProps) {
+export function HeroSection({ }: HeroSectionProps) {
   return (
     <section className="hero-section">
       <div className="hero-inner">
@@ -43,22 +38,6 @@ export function HeroSection({ onTypeSelect }: HeroSectionProps) {
           <Link to="/anuncie" className="btn-primary btn-large">Publicar Anúncio</Link>
           <Link to="/cadastro" className="btn-secondary btn-large">Cadastre-se</Link>
         </div>
-      </div>
-      <div className="hero-badge-grid">
-        {Object.entries(PLASTIC_TYPE_GROUPS).map(([group, types]) => (
-          <div key={group} className="hero-badge-group">
-            <span className="hero-badge-group-label">{group}</span>
-            {types.map((t) => (
-              <button
-                key={t}
-                className="hero-type-badge"
-                onClick={() => onTypeSelect(t)}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        ))}
       </div>
     </section>
   )

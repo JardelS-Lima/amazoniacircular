@@ -1,3 +1,4 @@
+import { CONDITIONS, PLASTIC_TYPES, conditionLabels } from '@/data/listings'
 import type { PlasticType, Condition } from '@/data/listings'
 
 interface SearchFilterProps {
@@ -13,15 +14,6 @@ interface SearchFilterProps {
   onMaxPriceChange: (v: string) => void
   onClear: () => void
   totalResults: number
-}
-
-const ALL_TYPES: PlasticType[] = ['PET', 'PEAD', 'PP', 'PEBD', 'PVC', 'PS', 'ABS', 'NYLON', 'ACRILICO']
-const ALL_CONDITIONS: Condition[] = ['limpo', 'misto', 'contaminado']
-
-const conditionLabel: Record<Condition, string> = {
-  limpo: 'Limpo',
-  misto: 'Misto',
-  contaminado: 'Contaminado',
 }
 
 export function SearchFilter({
@@ -71,7 +63,7 @@ export function SearchFilter({
       <div className="filter-section">
         <div className="filter-section-title">Tipo de plástico</div>
         <div className="filter-chips">
-          {ALL_TYPES.map((type) => (
+          {PLASTIC_TYPES.map((type) => (
             <button
               key={type}
               onClick={() => onTypeToggle(type)}
@@ -86,7 +78,7 @@ export function SearchFilter({
       <div className="filter-section">
         <div className="filter-section-title">Condição</div>
         <div className="filter-conditions">
-          {ALL_CONDITIONS.map((cond) => (
+          {CONDITIONS.map((cond) => (
             <label key={cond} className="condition-check">
               <input
                 type="checkbox"
@@ -94,7 +86,7 @@ export function SearchFilter({
                 onChange={() => onConditionToggle(cond)}
               />
               <span className={`condition-dot condition-${cond}`} />
-              <span>{conditionLabel[cond]}</span>
+              <span>{conditionLabels[cond]}</span>
             </label>
           ))}
         </div>

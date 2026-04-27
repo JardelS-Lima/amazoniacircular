@@ -1,10 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
-
-function encode(data: Record<string, string>) {
-  return Object.entries(data)
-    .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
-    .join('&')
-}
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNetlifyForm } from '@/hooks/useNetlifyForm'
+import { FormSuccess } from '@/components/ui/FormSuccess'
 
 interface ContactModalProps {
   isOpen: boolean
@@ -15,6 +11,8 @@ interface ContactModalProps {
   sellerCompany: string
 }
 
+const INITIAL_FIELDS = { name: '', email: '', phone: '', quantity: '', message: '' }
+
 export function ContactModal({
   isOpen,
   onClose,
@@ -23,16 +21,9 @@ export function ContactModal({
   sellerName,
   sellerCompany,
 }: ContactModalProps) {
-  const [fields, setFields] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    quantity: '',
-    message: '',
-  })
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [fields, setFields] = useState(INITIAL_FIELDS)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const { isSubmitting, isSuccess, isError, error, submit, reset } = useNetlifyForm('negociacao')
 
   useEffect(() => {
     if (isOpen) {
@@ -47,39 +38,32 @@ export function ContactModal({
 
   useEffect(() => {
     if (!isOpen) {
-      setSubmitted(false)
-      setFields({ name: '', email: '', phone: '', quantity: '', message: '' })
+      setFields(INITIAL_FIELDS)
+      reset()
     }
-  }, [isOpen])
+  }, [isOpen, reset])
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setFields((prev) => ({ ...prev, [e.target.name]: e.target.value })),
+    [],
+  )
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      await submit({
+        listing_id: String(listingId),
+        listing_title: listingTitle,
+        seller_name: sellerName,
+        seller_company: sellerCompany,
+        ...fields,
+      })
+    },
+    [submit, listingId, listingTitle, sellerName, sellerCompany, fields],
+  )
 
   if (!isOpen) return null
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => setFields({ ...fields, [e.target.name]: e.target.value })
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    try {
-      await fetch('/__forms.html', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode({
-          'form-name': 'negociacao',
-          listing_id: listingId.toString(),
-          listing_title: listingTitle,
-          seller_company: sellerCompany,
-          ...fields,
-        }),
-      })
-      setSubmitted(true)
-    } catch {
-      setSubmitted(true)
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   return (
     <div
@@ -91,23 +75,20 @@ export function ContactModal({
     >
       <div className="modal-panel">
         <button className="modal-close" onClick={onClose} aria-label="Fechar">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
         </button>
 
-        {submitted ? (
-          <div className="modal-success">
-            <div className="success-icon">
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                <circle cx="20" cy="20" r="19" stroke="#3a8a4a" strokeWidth="2"/>
-                <path d="M12 20l6 6 10-12" stroke="#3a8a4a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <h3>Proposta enviada!</h3>
-            <p>Sua mensagem foi encaminhada para <strong>{sellerCompany}</strong>. Aguarde o contato do vendedor.</p>
-            <button className="btn-primary" onClick={onClose}>Fechar</button>
-          </div>
+        {isSuccess ? (
+          <FormSuccess
+            size="modal"
+            title="Proposta enviada!"
+            message={
+              <>Sua mensagem foi encaminhada para <strong>{sellerCompany}</strong>. Aguarde o contato do vendedor.</>
+            }
+            actions={<button className="btn-primary" onClick={onClose}>Fechar</button>}
+          />
         ) : (
           <>
             <div className="modal-header">
@@ -121,8 +102,7 @@ export function ContactModal({
               <input type="hidden" name="listing_id" value={listingId} />
               <input type="hidden" name="listing_title" value={listingTitle} />
               <input type="hidden" name="seller_company" value={sellerCompany} />
-              {/* Honeypot */}
-              <input type="text" name="bot-field" style={{ display: 'none' }} />
+              <input type="text" name="bot-field" style={{ display: 'none' }} aria-hidden="true" tabIndex={-1} />
 
               <div className="form-row">
                 <div className="form-group">
@@ -188,8 +168,14 @@ export function ContactModal({
                 />
               </div>
 
-              <button type="submit" className="btn-primary btn-full" disabled={submitting}>
-                {submitting ? 'Enviando...' : 'Enviar proposta'}
+              {isError && (
+                <div className="form-error" role="alert">
+                  Não foi possível enviar sua proposta: {error}
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary btn-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Enviando...' : 'Enviar proposta'}
               </button>
             </form>
           </>

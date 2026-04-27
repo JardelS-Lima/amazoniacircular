@@ -1,67 +1,38 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import listings from '@/data/listings'
-import type { Listing, PlasticType, Condition } from '@/data/listings'
+import type { Listing, PlasticType } from '@/data/listings'
 import { SearchFilter } from '@/components/SearchFilter'
 import { ListingCard } from '@/components/ListingCard'
 import { ContactModal } from '@/components/ContactModal'
 import { HeroSection } from '@/components/HeroSection'
 import { SellersGrid } from '@/components/SellersGrid'
 import { CTAs } from '@/components/CTAs'
+import { useFilters } from '@/hooks/useFilters'
 
 export const Route = createFileRoute('/')({
   component: MarketplaceHome,
 })
 
 function MarketplaceHome() {
-  const [search, setSearch] = useState('')
-  const [selectedTypes, setSelectedTypes] = useState<PlasticType[]>([])
-  const [selectedConditions, setSelectedConditions] = useState<Condition[]>([])
-  const [minQty, setMinQty] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
+  const filters = useFilters(listings)
   const [contactListing, setContactListing] = useState<Listing | null>(null)
   const [activeTab, setActiveTab] = useState<'listings' | 'sellers'>('listings')
 
-  const toggleType = (t: PlasticType) =>
-    setSelectedTypes((prev) =>
-      prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]
-    )
+  const handleContact = useCallback((l: Listing) => setContactListing(l), [])
+  const closeContact = useCallback(() => setContactListing(null), [])
 
-  const toggleCondition = (c: Condition) =>
-    setSelectedConditions((prev) =>
-      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
-    )
-
-  const clearFilters = () => {
-    setSearch('')
-    setSelectedTypes([])
-    setSelectedConditions([])
-    setMinQty('')
-    setMaxPrice('')
-  }
-
-  const filtered = listings.filter((l) => {
-    if (
-      search &&
-      !l.title.toLowerCase().includes(search.toLowerCase()) &&
-      !l.plasticType.toLowerCase().includes(search.toLowerCase()) &&
-      !l.shortDescription.toLowerCase().includes(search.toLowerCase()) &&
-      !l.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()))
-    )
-      return false
-    if (selectedTypes.length && !selectedTypes.includes(l.plasticType)) return false
-    if (selectedConditions.length && !selectedConditions.includes(l.condition)) return false
-    if (minQty && l.quantityKg < parseInt(minQty)) return false
-    if (maxPrice && l.pricePerKg > parseFloat(maxPrice)) return false
-    return true
-  })
+  const handleHeroTypeSelect = useCallback(
+    (type: PlasticType) => {
+      setActiveTab('listings')
+      filters.setSelectedTypes([type])
+    },
+    [filters],
+  )
 
   return (
     <main className="marketplace-main">
-      <HeroSection onTypeSelect={(type) => {
-        setActiveTab('listings')
-        setSelectedTypes([type])
-      }} />
+      <HeroSection onTypeSelect={handleHeroTypeSelect} />
 
       <div className="marketplace-tabs">
         <button
@@ -81,22 +52,22 @@ function MarketplaceHome() {
       {activeTab === 'listings' ? (
         <div className="marketplace-layout">
           <SearchFilter
-            search={search}
-            onSearchChange={setSearch}
-            selectedTypes={selectedTypes}
-            onTypeToggle={toggleType}
-            selectedConditions={selectedConditions}
-            onConditionToggle={toggleCondition}
-            minQty={minQty}
-            onMinQtyChange={setMinQty}
-            maxPrice={maxPrice}
-            onMaxPriceChange={setMaxPrice}
-            onClear={clearFilters}
-            totalResults={filtered.length}
+            search={filters.search}
+            onSearchChange={filters.setSearch}
+            selectedTypes={filters.selectedTypes}
+            onTypeToggle={filters.toggleType}
+            selectedConditions={filters.selectedConditions}
+            onConditionToggle={filters.toggleCondition}
+            minQty={filters.minQty}
+            onMinQtyChange={filters.setMinQty}
+            maxPrice={filters.maxPrice}
+            onMaxPriceChange={filters.setMaxPrice}
+            onClear={filters.clear}
+            totalResults={filters.filtered.length}
           />
 
           <div className="listings-grid">
-            {filtered.length === 0 ? (
+            {filters.filtered.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">
                   <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -106,14 +77,14 @@ function MarketplaceHome() {
                   </svg>
                 </div>
                 <h3>Nenhum anúncio encontrado</h3>
-                <p>Tente ajustar os filtros ou <button onClick={clearFilters} className="link-btn">limpar todos</button>.</p>
+                <p>Tente ajustar os filtros ou <button onClick={filters.clear} className="link-btn">limpar todos</button>.</p>
               </div>
             ) : (
-              filtered.map((listing) => (
+              filters.filtered.map((listing) => (
                 <ListingCard
                   key={listing.id}
                   listing={listing}
-                  onContact={setContactListing}
+                  onContact={handleContact}
                 />
               ))
             )}
@@ -125,7 +96,7 @@ function MarketplaceHome() {
 
       <ContactModal
         isOpen={!!contactListing}
-        onClose={() => setContactListing(null)}
+        onClose={closeContact}
         listingTitle={contactListing?.title ?? ''}
         listingId={contactListing?.id ?? 0}
         sellerName={contactListing?.seller.name ?? ''}

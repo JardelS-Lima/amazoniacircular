@@ -1,59 +1,45 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useNetlifyForm } from '@/hooks/useNetlifyForm'
+import { FormSuccess } from '@/components/ui/FormSuccess'
 
 export const Route = createFileRoute('/cadastro')({
   component: CadastroPage,
 })
 
-function encode(data: Record<string, string>) {
-  return Object.entries(data)
-    .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
-    .join('&')
-}
-
 type UserType = 'vendedor' | 'comprador'
+
+const INITIAL_FIELDS = {
+  empresa: '',
+  cnpj: '',
+  responsavel: '',
+  email: '',
+  telefone: '',
+  whatsapp: '',
+  endereco: '',
+  bairro: '',
+  tipos_interesse: '',
+  descricao: '',
+}
 
 function CadastroPage() {
   const [userType, setUserType] = useState<UserType | null>(null)
-  const [fields, setFields] = useState({
-    empresa: '',
-    cnpj: '',
-    responsavel: '',
-    email: '',
-    telefone: '',
-    whatsapp: '',
-    endereco: '',
-    bairro: '',
-    tipos_interesse: '',
-    descricao: '',
-  })
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [fields, setFields] = useState(INITIAL_FIELDS)
+  const { isSubmitting, isSuccess, isError, error, submit } = useNetlifyForm('cadastro')
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => setFields({ ...fields, [e.target.name]: e.target.value })
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setFields((prev) => ({ ...prev, [e.target.name]: e.target.value })),
+    [],
+  )
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    try {
-      await fetch('/__forms.html', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode({
-          'form-name': 'cadastro',
-          tipo_usuario: userType || '',
-          ...fields,
-        }),
-      })
-      setSubmitted(true)
-    } catch {
-      setSubmitted(true)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      await submit({ tipo_usuario: userType ?? '', ...fields })
+    },
+    [submit, userType, fields],
+  )
 
   return (
     <main className="page-main">
@@ -68,23 +54,12 @@ function CadastroPage() {
           </div>
         </div>
 
-        {submitted ? (
-          <div className="form-success-box">
-            <div className="success-icon-lg">
-              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                <circle cx="28" cy="28" r="26" stroke="#1a6b2a" strokeWidth="2.5" />
-                <path d="M16 28l8 8 16-18" stroke="#1a6b2a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <h2>Cadastro realizado com sucesso!</h2>
-            <p>
-              Sua solicitação foi recebida. Nossa equipe entrará em contato em até 48h para validar
-              seu cadastro e liberar o acesso completo à plataforma.
-            </p>
-            <div className="form-success-actions">
-              <Link to="/" className="btn-primary">Voltar ao Marketplace</Link>
-            </div>
-          </div>
+        {isSuccess ? (
+          <FormSuccess
+            title="Cadastro realizado com sucesso!"
+            message="Sua solicitação foi recebida. Nossa equipe entrará em contato em até 48h para validar seu cadastro e liberar o acesso completo à plataforma."
+            actions={<Link to="/" className="btn-primary">Voltar ao Marketplace</Link>}
+          />
         ) : !userType ? (
           <div className="cadastro-type-select">
             <h2 className="section-heading">Como deseja participar?</h2>
@@ -232,8 +207,14 @@ function CadastroPage() {
                 <textarea id="c-descricao" name="descricao" value={fields.descricao} onChange={handleChange} rows={4} placeholder={userType === 'vendedor' ? 'Descreva os tipos de materiais que sua empresa gera, volumes mensais, processos...' : 'Descreva os materiais que procura, volumes desejados, aplicação...'} />
               </div>
 
-              <button type="submit" className="btn-primary btn-full btn-large" disabled={submitting}>
-                {submitting ? 'Enviando...' : 'Finalizar Cadastro'}
+              {isError && (
+                <div className="form-error" role="alert">
+                  Não foi possível concluir o cadastro: {error}
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary btn-full btn-large" disabled={isSubmitting}>
+                {isSubmitting ? 'Enviando...' : 'Finalizar Cadastro'}
               </button>
             </form>
           </div>

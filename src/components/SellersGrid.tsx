@@ -1,4 +1,6 @@
 import { sellers } from '@/data/listings'
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge'
+import { SellerAvatar } from '@/components/ui/SellerAvatar'
 
 export function SellersGrid() {
   return (
@@ -6,20 +8,11 @@ export function SellersGrid() {
       {sellers.map((seller) => (
         <article key={seller.id} className="seller-card">
           <div className="seller-card-header">
-            <div className="seller-avatar">
-              {seller.company.charAt(0)}
-            </div>
+            <SellerAvatar company={seller.company} />
             <div>
               <div className="seller-company-name">
                 {seller.company}
-                {seller.verified && (
-                  <span className="verified-badge" title="Vendedor verificado">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M7 1l1.4 2.8 3.1.5-2.25 2.2.53 3.1L7 8.15 4.22 9.6l.53-3.1L2.5 4.3l3.1-.5z" fill="#1a6b2a"/>
-                    </svg>
-                    Verificado
-                  </span>
-                )}
+                {seller.verified && <VerifiedBadge />}
               </div>
               <div className="seller-location-line">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">

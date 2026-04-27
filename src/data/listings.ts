@@ -1,5 +1,8 @@
-export type PlasticType = 'PET' | 'PEAD' | 'PP' | 'PEBD' | 'PVC' | 'PS' | 'ABS' | 'NYLON' | 'ACRILICO'
-export type Condition = 'limpo' | 'contaminado' | 'misto'
+export const PLASTIC_TYPES = ['PET', 'PEAD', 'PP', 'PEBD', 'PVC', 'PS', 'ABS', 'NYLON', 'ACRILICO'] as const
+export type PlasticType = (typeof PLASTIC_TYPES)[number]
+
+export const CONDITIONS = ['limpo', 'misto', 'contaminado'] as const
+export type Condition = (typeof CONDITIONS)[number]
 
 export interface Seller {
   id: number

@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import listings, { plasticTypeLabels, conditionLabels } from '@/data/listings'
 import { ContactModal } from '@/components/ContactModal'
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge'
+import { SellerAvatar } from '@/components/ui/SellerAvatar'
 
 export const Route = createFileRoute('/products/$productId')({
   component: ListingDetail,
@@ -10,11 +12,31 @@ export const Route = createFileRoute('/products/$productId')({
     if (!listing) throw new Error('Anúncio não encontrado')
     return listing
   },
+  errorComponent: ({ error }) => (
+    <main className="detail-main">
+      <div className="detail-container">
+        <div className="empty-state">
+          <div className="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="2" />
+              <path d="M24 14v12M24 32v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <h1>Anúncio não disponível</h1>
+          <p>{error.message}</p>
+          <Link to="/" className="btn-primary">Voltar ao marketplace</Link>
+        </div>
+      </div>
+    </main>
+  ),
 })
 
 function ListingDetail() {
   const listing = Route.useLoaderData()
   const [contactOpen, setContactOpen] = useState(false)
+  const openContact = useCallback(() => setContactOpen(true), [])
+  const closeContact = useCallback(() => setContactOpen(false), [])
+
   const related = listings
     .filter((l) => l.plasticType === listing.plasticType && l.id !== listing.id)
     .slice(0, 3)
@@ -71,25 +93,18 @@ function ListingDetail() {
 
             <p className="detail-description">{listing.description}</p>
 
-            <button className="btn-primary btn-large" onClick={() => setContactOpen(true)}>
+            <button className="btn-primary btn-large" onClick={openContact}>
               Entrar em contato / Negociar
             </button>
 
             <div className="seller-panel">
               <div className="seller-panel-header">Vendedor</div>
               <div className="seller-panel-body">
-                <div className="seller-panel-avatar">{listing.seller.company.charAt(0)}</div>
+                <SellerAvatar company={listing.seller.company} className="seller-panel-avatar" />
                 <div className="seller-panel-info">
                   <div className="seller-panel-company">
                     {listing.seller.company}
-                    {listing.seller.verified && (
-                      <span className="verified-badge">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M7 1l1.4 2.8 3.1.5-2.25 2.2.53 3.1L7 8.15 4.22 9.6l.53-3.1L2.5 4.3l3.1-.5z" fill="#1a6b2a"/>
-                        </svg>
-                        Verificado
-                      </span>
-                    )}
+                    {listing.seller.verified && <VerifiedBadge />}
                   </div>
                   <div className="seller-panel-name">{listing.seller.name}</div>
                   <div className="seller-panel-location">
@@ -162,7 +177,7 @@ function ListingDetail() {
 
       <ContactModal
         isOpen={contactOpen}
-        onClose={() => setContactOpen(false)}
+        onClose={closeContact}
         listingTitle={listing.title}
         listingId={listing.id}
         sellerName={listing.seller.name}

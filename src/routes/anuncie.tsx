@@ -1,61 +1,51 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { CONDITIONS, PLASTIC_TYPES } from '@/data/listings'
+import { useNetlifyForm } from '@/hooks/useNetlifyForm'
+import { FormSuccess } from '@/components/ui/FormSuccess'
 
 export const Route = createFileRoute('/anuncie')({
   component: AnunciePage,
 })
 
-function encode(data: Record<string, string>) {
-  return Object.entries(data)
-    .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
-    .join('&')
+const INITIAL_FIELDS = {
+  empresa: '',
+  responsavel: '',
+  email: '',
+  telefone: '',
+  whatsapp: '',
+  titulo: '',
+  tipo_plastico: '',
+  condicao: '',
+  quantidade_kg: '',
+  preco_por_kg: '',
+  descricao: '',
+  localizacao: '',
+  tags: '',
 }
 
-const PLASTIC_TYPES = ['PET', 'PEAD', 'PP', 'PEBD', 'PVC', 'PS', 'ABS', 'NYLON', 'ACRILICO']
-const CONDITIONS = ['limpo', 'misto', 'contaminado']
-
 function AnunciePage() {
-  const [fields, setFields] = useState({
-    empresa: '',
-    responsavel: '',
-    email: '',
-    telefone: '',
-    whatsapp: '',
-    titulo: '',
-    tipo_plastico: '',
-    condicao: '',
-    quantidade_kg: '',
-    preco_por_kg: '',
-    descricao: '',
-    localizacao: '',
-    tags: '',
-  })
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [fields, setFields] = useState(INITIAL_FIELDS)
+  const { isSubmitting, isSuccess, isError, error, submit, reset } = useNetlifyForm('novo-anuncio')
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => setFields({ ...fields, [e.target.name]: e.target.value })
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setFields((prev) => ({ ...prev, [e.target.name]: e.target.value })),
+    [],
+  )
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    try {
-      await fetch('/__forms.html', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode({
-          'form-name': 'novo-anuncio',
-          ...fields,
-        }),
-      })
-      setSubmitted(true)
-    } catch {
-      setSubmitted(true)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      await submit(fields)
+    },
+    [submit, fields],
+  )
+
+  const startOver = useCallback(() => {
+    setFields(INITIAL_FIELDS)
+    reset()
+  }, [reset])
 
   return (
     <main className="page-main">
@@ -70,34 +60,21 @@ function AnunciePage() {
           </div>
         </div>
 
-        {submitted ? (
-          <div className="form-success-box">
-            <div className="success-icon-lg">
-              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                <circle cx="28" cy="28" r="26" stroke="#1a6b2a" strokeWidth="2.5" />
-                <path
-                  d="M16 28l8 8 16-18"
-                  stroke="#1a6b2a"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <h2>Anúncio enviado com sucesso!</h2>
-            <p>
-              Sua oferta de material foi recebida e será analisada pela nossa equipe. Você receberá
-              uma confirmação por e-mail em breve.
-            </p>
-            <div className="form-success-actions">
-              <Link to="/" className="btn-primary">
-                Voltar ao Marketplace
-              </Link>
-              <button className="btn-secondary" onClick={() => { setSubmitted(false); setFields({ empresa: '', responsavel: '', email: '', telefone: '', whatsapp: '', titulo: '', tipo_plastico: '', condicao: '', quantidade_kg: '', preco_por_kg: '', descricao: '', localizacao: '', tags: '' }) }}>
-                Criar outro anúncio
-              </button>
-            </div>
-          </div>
+        {isSuccess ? (
+          <FormSuccess
+            title="Anúncio enviado com sucesso!"
+            message="Sua oferta de material foi recebida e será analisada pela nossa equipe. Você receberá uma confirmação por e-mail em breve."
+            actions={
+              <>
+                <Link to="/" className="btn-primary">
+                  Voltar ao Marketplace
+                </Link>
+                <button className="btn-secondary" onClick={startOver}>
+                  Criar outro anúncio
+                </button>
+              </>
+            }
+          />
         ) : (
           <div className="form-page-layout">
             <div className="form-sidebar-info">
@@ -224,8 +201,14 @@ function AnunciePage() {
                 <input id="a-tags" type="text" name="tags" value={fields.tags} onChange={handleChange} placeholder="Ex: termoformagem, cristal, sem-contaminação" />
               </div>
 
-              <button type="submit" className="btn-primary btn-full btn-large" disabled={submitting}>
-                {submitting ? 'Enviando...' : 'Publicar Anúncio'}
+              {isError && (
+                <div className="form-error" role="alert">
+                  Não foi possível publicar o anúncio: {error}
+                </div>
+              )}
+
+              <button type="submit" className="btn-primary btn-full btn-large" disabled={isSubmitting}>
+                {isSubmitting ? 'Enviando...' : 'Publicar Anúncio'}
               </button>
             </form>
           </div>

@@ -17,5 +17,17 @@ Desenvolvimento de uma plataforma digital que centraliza anúncios e facilita a 
 - Vite
 - Netlify
 
+## 👨‍💻 Autor
+
+Este projeto foi idealizado por Jardel Silva como solução para o mercado de resíduos plásticos no Polo Industrial de Manaus.
+
+Desenvolvido em colaboração com:
+
+- Maick Castro
+
+Contato:
+- LinkedIn: https://www.linkedin.com/in/jardel-silvalima/
+
+
 ## 🌐 Acesse o projeto
 https://amazoniacircular.netlify.app
